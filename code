@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Next Month - Professional Month Prediction Tool</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        #monthInput {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        #monthInput:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        #monthInput::placeholder {
+            color: #a0aec0;
+            font-weight: 400;
+        }
+
+        .predict-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .predict-btn:active {
+            transform: translateY(-1px);
+        }
+
+        #loading {
+            margin-top: 40px;
+            font-size: 1.2rem;
+            color: #667eea;
+            display: none;
+            font-weight: 600;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .loading-icon {
+            display: inline-block;
+            margin-right: 10px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #result {
+            margin-top: 40px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            padding: 25px;
+            border-radius: 12px;
+            background: #f0fff4;
+            border: 2px solid #9ae6b4;
+            display: none;
+        }
+
+        #result.success {
+            display: block;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        #result.error {
+            display: block;
+            background: #fed7d7;
+            border-color: #fc8181;
+            color: #c53030;
+            animation: shake 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .next-month {
+            color: #38a169;
+            font-size: 2rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(56, 161, 105, 0.2);
+        }
+
+        .icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .footer-text {
+            margin-top: 30px;
+            color: #a0aec0;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 20px;
+                margin: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            #monthInput {
+                font-size: 1rem;
+                padding: 15px 18px;
+            }
+            
+            .predict-btn {
+                padding: 15px 30px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-crystal-ball icon"></i>Predict Next Month</h1>
+        <p class="subtitle">Enter any month and discover what comes next with our advanced prediction algorithm</p>
+        
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="monthInput" 
+                placeholder="Type a month name (e.g., January, February...)"
+                autocomplete="off"
+            />
+        </div>
+        
+        <button class="predict-btn" onclick="predict()">
+            <i class="fas fa-magic"></i> Predict Next Month
+        </button>
+
+        <div id="loading">
+            <i class="fas fa-cog loading-icon"></i>
+            <span id="loadingText"></span>
+        </div>
+        
+        <div id="result"></div>
+        
+        <p class="footer-text">Powered by quantum computing and alien technology</p>
+    </div>
+
+    <script>
+        // Month names array for validation and calculation
+        const months = [
+            "january", "february", "march", "april", "may", "june",
+            "july", "august", "september", "october", "november", "december"
+        ];
+
+        // Fun loading messages as specified
+        const loadingSteps = [
+            "Contacting alien....",
+            "Going physical with code....",
+            "Quantum computing.....",
+            "Asking Modi G.....",
+            "Almost done....."
+        ];
+
+        // Add enter key functionality for better UX
+        document.getElementById("monthInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                predict();
+            }
+        });
+
+        function predict() {
+            // Get user input and normalize it
+            let input = document.getElementById("monthInput").value.toLowerCase().trim();
+            let index = months.indexOf(input);
+            let resultBox = document.getElementById("result");
+            let loadingBox = document.getElementById("loading");
+            let loadingText = document.getElementById("loadingText");
+            
+            // Reset previous states
+            resultBox.style.display = "none";
+            resultBox.className = "";
+            loadingBox.style.display = "none";
+
+            // Validate input
+            if (!input) {
+                showError("Please enter a month name!");
+                return;
+            }
+
+            if (index === -1) {
+                showError("❌ Invalid month name! Please enter a valid month (e.g., January, February, etc.)");
+                return;
+            }
+
+            // Start loading sequence
+            loadingBox.style.display = "block";
+            
+            // Cycle through funny loading texts every 2 seconds
+            let step = 0;
+            loadingText.innerHTML = loadingSteps[step];
+            
+            let interval = setInterval(() => {
+                step++;
+                if (step < loadingSteps.length) {
+                    loadingText.innerHTML = loadingSteps[step];
+                } else {
+                    // Reset to first message for continuous loop
+                    step = 0;
+                    loadingText.innerHTML = loadingSteps[step];
+                }
+            }, 2000);
+
+            // After 10 seconds, show the result
+            setTimeout(() => {
+                clearInterval(interval);
+                loadingBox.style.display = "none";
+                
+                // Calculate next month (with wrap-around for December)
+                let nextMonthIndex = (index + 1) % 12;
+                let nextMonth = months[nextMonthIndex];
+                
+                // Capitalize first letter
+                let capitalizedNextMonth = nextMonth.charAt(0).toUpperCase() + nextMonth.slice(1);
+                
+                // Show success result
+                resultBox.innerHTML = `
+                    <i class="fas fa-check-circle" style="color: #38a169; margin-right: 10px;"></i>
+                    Next month is: <span class="next-month">${capitalizedNextMonth}</span>
+                `;
+                resultBox.className = "success";
+                resultBox.style.display = "block";
+                
+                // Clear input for next use
+                document.getElementById("monthInput").value = "";
+                
+            }, 10000); // 10 seconds as specified
+        }
+
+        function showError(message) {
+            let resultBox = document.getElementById("result");
+            resultBox.innerHTML = message;
+            resultBox.className = "error";
+            resultBox.style.display = "block";
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                resultBox.style.display = "none";
+            }, 5000);
+        }
+
+        // Add some visual feedback when typing
+        document.getElementById("monthInput").addEventListener("input", function() {
+            let resultBox = document.getElementById("result");
+            if (resultBox.style.display === "block") {
+                resultBox.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
